@@ -773,7 +773,7 @@ const questoes = [
 // ─────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────
-const fmt = (text) => {
+const fmt = (text: string) => {
   const parts = text.split(/\*\*(.*?)\*\*/g);
   return parts.map((p, i) =>
     i % 2 === 1
@@ -782,7 +782,7 @@ const fmt = (text) => {
   );
 };
 
-const difCor = { Fácil: "#34d399", Médio: "#fbbf24", Difícil: "#f87171" };
+const difCor: Record<string, string> = { Fácil: "#34d399", Médio: "#fbbf24", Difícil: "#f87171" };
 const TEMAS_Q = ["Todos", "Expansão", "Método Mestre", "Divisão e Conquista", "Método Guloso", "Huffman", "Kruskal / AGM", "Integrada"];
 const DIFS   = ["Todas", "Fácil", "Médio", "Difícil"];
 
@@ -792,11 +792,11 @@ const DIFS   = ["Todas", "Fácil", "Médio", "Difícil"];
 export default function App() {
   const [aba, setAba] = useState("resumo"); // resumo | exercicios
   // resumo
-  const [topicoId, setTopicoId] = useState(null);
+  const [topicoId, setTopicoId] = useState<string | null>(null);
   const [pesquisa, setPesquisa] = useState("");
   // exercícios
-  const [respostas, setRespostas] = useState({});
-  const [gabaritos, setGabaritos] = useState({});
+  const [respostas, setRespostas] = useState<Record<number, number>>({});
+  const [gabaritos, setGabaritos] = useState<Record<number, boolean>>({});
   const [temaSel, setTemaSel] = useState("Todos");
   const [difSel, setDifSel]   = useState("Todas");
 
@@ -812,12 +812,17 @@ export default function App() {
   const respondidas   = Object.keys(gabaritos).length;
   const acertos       = questoes.filter(q => gabaritos[q.id] && respostas[q.id] === q.correta).length;
 
-  const responder  = (qid, idx) => { if (!gabaritos[qid]) setRespostas(r => ({...r, [qid]: idx})); };
-  const confirmar  = (qid)      => { if (respostas[qid] !== undefined) setGabaritos(g => ({...g, [qid]: true})); };
+  const responder  = (qid: number, idx: number) => { if (!gabaritos[qid]) setRespostas(r => ({...r, [qid]: idx})); };
+  const confirmar  = (qid: number) => { if (respostas[qid] !== undefined) setGabaritos(g => ({...g, [qid]: true})); };
   const revelarTudo = () => {
     const nr = {...respostas}; const ng = {...gabaritos};
     questoesFilt.forEach(q => { if (!ng[q.id]) { if (nr[q.id] === undefined) nr[q.id]=-1; ng[q.id]=true; } });
     setRespostas(nr); setGabaritos(ng);
+  };
+
+  const resetarQuestoes = () => {
+    setRespostas({});
+    setGabaritos({});
   };
 
   return (
@@ -1075,9 +1080,12 @@ export default function App() {
           })}
 
           {questoesFilt.length > 0 && (
-            <div style={{ textAlign:"center", paddingTop:4, paddingBottom:32 }}>
+            <div style={{ textAlign:"center", paddingTop:4, paddingBottom:32, display:"flex", justifyContent:"center", gap:10, flexWrap:"wrap" }}>
               <button onClick={revelarTudo} style={{ background:"none", border:"1px solid #2d2d4a", borderRadius:7, padding:"9px 22px", color:"#64748b", fontSize:12, cursor:"pointer" }}>
                 Revelar todos os gabaritos
+              </button>
+              <button onClick={resetarQuestoes} style={{ background:"none", border:"1px solid #7f1d1d", borderRadius:7, padding:"9px 22px", color:"#f87171", fontSize:12, cursor:"pointer" }}>
+                🔄 Resetar questões
               </button>
             </div>
           )}
